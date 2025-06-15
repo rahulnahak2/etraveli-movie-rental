@@ -1,20 +1,12 @@
 package com.etraveli.movierental.models;
 
+import com.etraveli.movierental.services.enums.MovieType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Movie {
     private String title;
-    private String code;
-
-    public Movie(String title, String code) {
-
-        this.title = title;
-        this.code = code;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCode() {
-        return code;
-    }
+    private MovieType code;
 }

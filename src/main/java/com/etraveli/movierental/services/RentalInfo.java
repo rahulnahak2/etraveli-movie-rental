@@ -1,56 +1,45 @@
 package com.etraveli.movierental.services;
 
+import com.etraveli.movierental.configuration.MovieCatalog;
 import com.etraveli.movierental.models.CustomerDetails;
 import com.etraveli.movierental.models.Movie;
 import com.etraveli.movierental.models.MovieRental;
+import com.etraveli.movierental.services.enums.MovieType;
+import com.etraveli.movierental.services.factory.PricingStrategyFactory;
+import com.etraveli.movierental.services.pricing.PricingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-
+@Service
 public class RentalInfo {
+  @Autowired
+  private MovieCatalog movieCatalog;
+  @Autowired
+  PricingStrategyFactory pricingStrategyFactory;
+
 
   public String statement(CustomerDetails customer) {
-    HashMap<String, Movie> movies = new HashMap();
-    movies.put("F001", new Movie("You've Got Mail", "regular"));
-    movies.put("F002", new Movie("Matrix", "regular"));
-    movies.put("F003", new Movie("Cars", "childrens"));
-    movies.put("F004", new Movie("Fast & Furious X", "new"));
-
     double totalAmount = 0;
-    int frequentEnterPoints = 0;
-    String result = "Rental Record for " + customer.getName() + "\n";
-    for (MovieRental r : customer.getRentals()) {
-      double thisAmount = 0;
-
-      // determine amount for each movie
-      if (movies.get(r.getMovieId()).getCode().equals("regular")) {
-        thisAmount = 2;
-        if (r.getDays() > 2) {
-          thisAmount = ((r.getDays() - 2) * 1.5) + thisAmount;
-        }
-      }
-      if (movies.get(r.getMovieId()).getCode().equals("new")) {
-        thisAmount = r.getDays() * 3;
-      }
-      if (movies.get(r.getMovieId()).getCode().equals("childrens")) {
-        thisAmount = 1.5;
-        if (r.getDays() > 3) {
-          thisAmount = ((r.getDays() - 3) * 1.5) + thisAmount;
-        }
-      }
+    int frequentRenterPoints = 0;
+    StringBuilder rentalSlip = new StringBuilder("Rental Record for " + customer.getName() + "\n");
+    for (MovieRental rental : customer.getRentals()) {
+      Movie movie = movieCatalog.getMovieById(rental.getMovieId());
+      MovieType type = MovieType.valueOf(movie.getCode().toString().toUpperCase());
+      PricingStrategy strategy = pricingStrategyFactory.getStrategy(type);
+      double charge = strategy.calculateCharge(rental.getDays());
+      int points = strategy.calculateFrequentRenterPoints(rental.getDays());
 
       //add frequent bonus points
-      frequentEnterPoints++;
+      frequentRenterPoints +=points;
       // add bonus for a two day new release rental
-      if (movies.get(r.getMovieId()).getCode() == "new" && r.getDays() > 2) frequentEnterPoints++;
-
-      //print figures for this rental
-      result += "\t" + movies.get(r.getMovieId()).getTitle() + "\t" + thisAmount + "\n";
-      totalAmount = totalAmount + thisAmount;
+      totalAmount +=charge;
+      rentalSlip.append("\t").append(movie.getTitle()).append("\t").append(charge).append("\n");
     }
     // add footer lines
-    result += "Amount owed is " + totalAmount + "\n";
-    result += "You earned " + frequentEnterPoints + " frequent points\n";
+    rentalSlip.append("Amount owed is ").append(totalAmount).append("\n");
+    rentalSlip.append("You earned ").append(frequentRenterPoints).append(" frequent points\n");
 
-    return result;
+    return rentalSlip.toString();
   }
 }
