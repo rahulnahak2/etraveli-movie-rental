@@ -1,8 +1,14 @@
+package com.etraveli.movierental.services;
+
+import com.etraveli.movierental.models.CustomerDetails;
+import com.etraveli.movierental.models.Movie;
+import com.etraveli.movierental.models.MovieRental;
+
 import java.util.HashMap;
 
 public class RentalInfo {
 
-  public String statement(Customer customer) {
+  public String statement(CustomerDetails customer) {
     HashMap<String, Movie> movies = new HashMap();
     movies.put("F001", new Movie("You've Got Mail", "regular"));
     movies.put("F002", new Movie("Matrix", "regular"));

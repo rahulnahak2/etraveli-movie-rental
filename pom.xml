@@ -9,7 +9,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Movie Rental - Spring Boot Application</name>
+    <name>com.etraveli.movierental.models.Movie Rental - Spring Boot Application</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
