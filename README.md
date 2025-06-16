@@ -29,7 +29,6 @@ java -cp src java.com.etraveli.movierental.com.etraveli.movierental.MovieRentalA
 6. Used Enum to define the type/categories of movies available.
 7. Implemented factory and strategy design pattern with the help of solid principles to calculate the rental and bonus points.
 8. Added Data JPA repositories and H2(in-memory) database to store movie, customer and rental details instead of hardcoding the data.
-
+9. Handled custom exception and validated the user input
 ## To-Do :
-1. Handle exceptional cases for application stability, error diagnosis and user-friendly behaviour.
-2. Add test cases to optimize the quality of code and helps designing the application for future enhancements.
+1. Add test cases to optimize the quality of code and helps designing the application for future enhancements.

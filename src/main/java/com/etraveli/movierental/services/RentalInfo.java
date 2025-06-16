@@ -4,6 +4,8 @@ import com.etraveli.movierental.configuration.MovieCatalog;
 import com.etraveli.movierental.entities.CustomerDetails;
 import com.etraveli.movierental.entities.Movie;
 import com.etraveli.movierental.entities.MovieRental;
+import com.etraveli.movierental.exceptions.InvalidMovieTypeException;
+import com.etraveli.movierental.exceptions.MovieNotFoundException;
 import com.etraveli.movierental.models.CustomerRequest;
 import com.etraveli.movierental.repositories.MovieRepository;
 import com.etraveli.movierental.services.enums.MovieType;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.etraveli.movierental.services.util.Constants.*;
@@ -31,7 +34,7 @@ public class RentalInfo {
 
     List<MovieRental> rentals = request.getRentals().stream().map(r -> {
       Movie movie = movieRepository.findById(r.getMovieId())
-              .orElseThrow(() -> new IllegalArgumentException("Movie not found: " + r.getMovieId()));
+              .orElseThrow(() -> new MovieNotFoundException("Movie not found: " + r.getMovieId()));
       MovieRental rental = new MovieRental();
       rental.setMovie(movie);
       rental.setDays(r.getDays());
@@ -50,7 +53,10 @@ public class RentalInfo {
     StringBuilder rentalSlip = new StringBuilder(String.format(CUSTOMER_DETAIL_STATEMENT, customer.getName()));
     for (MovieRental rental : customer.getRentals()) {
       Movie movie = rental.getMovie();
-      MovieType type = MovieType.valueOf(movie.getCode().toString().toUpperCase());
+      //MovieType type = MovieType.valueOf(movie.getCode().toString().toUpperCase());
+      MovieType type = Optional.ofNullable(movie.getCode())
+              .map(code -> MovieType.valueOf(code.toString().toUpperCase()))
+              .orElseThrow(() -> new InvalidMovieTypeException("Invalid movie code for: " + movie.getTitle()));
       PricingStrategy strategy = pricingStrategyFactory.getStrategy(type);
       double charge = strategy.calculateCharge(rental.getDays());
       int points = strategy.calculateFrequentRenterPoints(rental.getDays());
