@@ -23,7 +23,7 @@ java -cp src java.com.etraveli.movierental.com.etraveli.movierental.MovieRentalA
 ## Refactored:
 1. Updated the java project with apache Maven and spring framework.
 2. Updated main class as spring boot stater class.
-3. Created "GenerateSlipController" class to receive request from the web browser. Added Post method to receive customer and rental movie details as defined in "CustomerDetails" class and return generated rental slip to the web browser.
+3. Created "GenerateSlipController" class to receive request from the web browser. Added GET method to receive customer and rental movie details as defined in "CustomerDetails" class and return generated rental slip to the web browser.
 4. Re-arranged the java classes with designated packages for better reading and understanding of code.
 5. Added lombok to reduce boilerplate code.Add commentMore actions
 6. Used Enum to define the type/categories of movies available.
@@ -31,6 +31,7 @@ java -cp src java.com.etraveli.movierental.com.etraveli.movierental.MovieRentalA
 8. Added Data JPA repositories and H2(in-memory) database to store movie, customer and rental details instead of hardcoding the data.
 9. Handled custom exception and validated the user input
 10. Implemented unit testing using junit and mockito to maintain and improve quality of code.
+11. Implemented java 21 features to use latest version of modern java.
 ## To-Do :
 1. More test cases can be added to achieve all corner cases.
 2. Movie catalog class need to remove once full-featured db configured in the application. For testing purpose I have used (H2)in-memory DB.

@@ -14,8 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/movie-rental")
 public class GenerateSlipController {
-    @Autowired
-    RentalInfo rentalInfo;
+
+    private final RentalInfo rentalInfo;
+
+    public GenerateSlipController(RentalInfo rentalInfo) {
+        this.rentalInfo = rentalInfo;
+    }
+
     @GetMapping ("/generate-slip")
     public ResponseEntity<String> getMovieRentalSlip(@Valid @RequestBody CustomerRequest customerDetails){
         return ResponseEntity.ok(rentalInfo.statement(customerDetails));

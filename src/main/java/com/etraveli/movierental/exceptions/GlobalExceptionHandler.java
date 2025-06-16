@@ -68,13 +68,13 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status, String error, String message, List<String> details) {
 
-        ErrorResponse response = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .error(error)
-                .message(message)
-                .details(details)
-                .build();
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                error,
+                message,
+                details
+                );
 
         return new ResponseEntity<>(response, status);
     }

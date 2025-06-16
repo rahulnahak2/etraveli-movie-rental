@@ -21,23 +21,28 @@ import java.util.UUID;
 import static com.etraveli.movierental.services.util.Constants.*;
 
 @Service
-public class RentalInfo {
-  @Autowired
-  private MovieRepository movieRepository;
-  @Autowired
-  PricingStrategyFactory pricingStrategyFactory;
+public final class RentalInfo {
 
-  public String statement(CustomerRequest request) {
+  private final MovieRepository movieRepository;
+
+  private final PricingStrategyFactory pricingStrategyFactory;
+
+    public RentalInfo(MovieRepository movieRepository, PricingStrategyFactory pricingStrategyFactory) {
+        this.movieRepository = movieRepository;
+        this.pricingStrategyFactory = pricingStrategyFactory;
+    }
+
+    public String statement(CustomerRequest request) {
     CustomerDetails customer = new CustomerDetails();
     customer.setId(UUID.randomUUID().toString()); // generate ID
-    customer.setName(request.getName());
+    customer.setName(request.name());
 
-    List<MovieRental> rentals = request.getRentals().stream().map(r -> {
-      Movie movie = movieRepository.findById(r.getMovieId())
-              .orElseThrow(() -> new MovieNotFoundException("Movie not found: " + r.getMovieId()));
+    List<MovieRental> rentals = request.rentals().stream().map(r -> {
+      Movie movie = movieRepository.findById(r.movieId())
+              .orElseThrow(() -> new MovieNotFoundException("Movie not found: " + r.movieId()));
       MovieRental rental = new MovieRental();
       rental.setMovie(movie);
-      rental.setDays(r.getDays());
+      rental.setDays(r.days());
       rental.setCustomer(customer); // maintain the relationship
       return rental;
     }).toList();
@@ -53,7 +58,6 @@ public class RentalInfo {
     StringBuilder rentalSlip = new StringBuilder(String.format(CUSTOMER_DETAIL_STATEMENT, customer.getName()));
     for (MovieRental rental : customer.getRentals()) {
       Movie movie = rental.getMovie();
-      //MovieType type = MovieType.valueOf(movie.getCode().toString().toUpperCase());
       MovieType type = Optional.ofNullable(movie.getCode())
               .map(code -> MovieType.valueOf(code.toString().toUpperCase()))
               .orElseThrow(() -> new InvalidMovieTypeException("Invalid movie code for: " + movie.getTitle()));
