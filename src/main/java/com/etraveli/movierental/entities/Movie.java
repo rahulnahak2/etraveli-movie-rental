@@ -14,9 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Movie {
-    @Id
+    @Id // // Marks 'id' as the primary key
     private String id;
-    private String title;
+    private String title;   // Movie title
     @Enumerated(EnumType.STRING)
-    private MovieType code;
+    // Specifies that the MovieType enum should be persisted as a string (e.g., "REGULAR") instead of its ordinal
+    private MovieType code; // Enum indicating the movie's category (CHILDRENS, REGULAR, NEW)
 }

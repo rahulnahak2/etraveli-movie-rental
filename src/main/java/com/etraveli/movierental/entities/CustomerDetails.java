@@ -11,9 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerDetails {
-    @Id
+    @Id // Marks this field as the primary key
     private String id;
-    private String name;
+    private String name;    // Customer's name
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MovieRental> rentals;
+    // Defines a one-to-many relationship with MovieRental entity
+    // `mappedBy = "customer"` means MovieRental has a field named `customer` that owns the relationship
+    // `cascade = CascadeType.ALL` propagates all operations (persist, merge, remove, etc.) to rentals
+    // `fetch = FetchType.LAZY` means rentals are loaded on demand (not immediately with the CustomerDetails)
+    private List<MovieRental> rentals; // List of movie rentals associated with the customer
 }

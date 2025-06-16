@@ -1,6 +1,5 @@
 package com.etraveli.movierental.services;
 
-import com.etraveli.movierental.configuration.MovieCatalog;
 import com.etraveli.movierental.entities.CustomerDetails;
 import com.etraveli.movierental.entities.Movie;
 import com.etraveli.movierental.entities.MovieRental;
@@ -11,15 +10,12 @@ import com.etraveli.movierental.repositories.MovieRepository;
 import com.etraveli.movierental.services.enums.MovieType;
 import com.etraveli.movierental.services.factory.PricingStrategyFactory;
 import com.etraveli.movierental.services.pricing.PricingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.etraveli.movierental.services.util.Constants.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static com.etraveli.movierental.services.util.Constants.*;
-
 @Service
 public final class RentalInfo {
 
@@ -32,46 +28,77 @@ public final class RentalInfo {
         this.pricingStrategyFactory = pricingStrategyFactory;
     }
 
+  /**
+   * Generates the rental statement for a customer request.
+   */
     public String statement(CustomerRequest request) {
-    CustomerDetails customer = new CustomerDetails();
-    customer.setId(UUID.randomUUID().toString()); // generate ID
-    customer.setName(request.name());
+      CustomerDetails customer = new CustomerDetails();
+      customer.setId(UUID.randomUUID().toString()); // generate ID
+        customer.setName(request.name());
 
-    List<MovieRental> rentals = request.rentals().stream().map(r -> {
-      Movie movie = movieRepository.findById(r.movieId())
-              .orElseThrow(() -> new MovieNotFoundException("Movie not found: " + r.movieId()));
-      MovieRental rental = new MovieRental();
-      rental.setMovie(movie);
-      rental.setDays(r.days());
-      rental.setCustomer(customer); // maintain the relationship
-      return rental;
-    }).toList();
+        // Convert each rental request into a domain-specific MovieRental object
+        List<MovieRental> rentals = request.rentals().stream()
+                .map(r -> createRental(r.movieId(), r.days(), customer))
+                .toList();
 
-    customer.setRentals(rentals);
+      customer.setRentals(rentals);
 
-    return generateStatement(customer);
+      // Generate and return the rental statement text
+      return generateStatement(customer);
+    }
+
+  /**
+   * Maps movie ID and rental duration to a MovieRental object with associated customer.
+   */
+  private MovieRental createRental(String movieId, int days, CustomerDetails customer) {
+    // Fetch movie from repository or throw exception if not found
+    Movie movie = movieRepository.findById(movieId)
+            .orElseThrow(() -> new MovieNotFoundException("Movie not found: " + movieId));
+
+    // Create and populate a new MovieRental object
+    MovieRental rental = new MovieRental();
+    rental.setMovie(movie);
+    rental.setDays(days);
+    rental.setCustomer(customer);
+    return rental;
   }
 
+  /**
+   * Generates a detailed rental slip for the given customer.
+   */
   public String generateStatement(CustomerDetails customer) {
     double totalAmount = 0;
     int frequentRenterPoints = 0;
     StringBuilder rentalSlip = new StringBuilder(String.format(CUSTOMER_DETAIL_STATEMENT, customer.getName()));
     for (MovieRental rental : customer.getRentals()) {
       Movie movie = rental.getMovie();
+
+      // Validate and resolve movie type from code
       MovieType type = Optional.ofNullable(movie.getCode())
               .map(code -> MovieType.valueOf(code.toString().toUpperCase()))
               .orElseThrow(() -> new InvalidMovieTypeException("Invalid movie code for: " + movie.getTitle()));
+
+      // Fetch pricing strategy based on movie type
       PricingStrategy strategy = pricingStrategyFactory.getStrategy(type);
+
+      // Calculate charge and points using strategy
       double charge = strategy.calculateCharge(rental.getDays());
       int points = strategy.calculateFrequentRenterPoints(rental.getDays());
 
-      //add frequent bonus points
+      // Accumulate points and charges
       frequentRenterPoints +=points;
-      //sum of total rental amount charged
       totalAmount +=charge;
-      rentalSlip.append("\t").append(movie.getTitle()).append("\t").append(charge).append("\n");
+
+      // Append individual rental line item to statement
+      rentalSlip
+              .append("\t")
+              .append(movie.getTitle())
+              .append("\t")
+              .append(charge)
+              .append("\n");
     }
-    // add footer lines
+
+    // Append total amount and frequent renter points to the statement
     rentalSlip.append(String.format(TOTAL_AMOUNT_STATEMENT, totalAmount));
     rentalSlip.append(String.format(FREQUENT_POINT_STATEMENT, frequentRenterPoints));
 

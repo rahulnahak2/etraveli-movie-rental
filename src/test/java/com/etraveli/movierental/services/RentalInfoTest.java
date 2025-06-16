@@ -35,11 +35,13 @@ public class RentalInfoTest {
 
     @BeforeEach
     void setUp() {
+        // Initialize mocks before each test
         MockitoAnnotations.openMocks(this);
     }
+
     @Test
     void testStatement_successfulGeneration() {
-        //Setup Customer request
+        // Arrange: setup test data and mocks
         String movieId = "F001";
         String customerName = "C. U. Stomer";
         MovieRentalRequest rentalRequest = new MovieRentalRequest(movieId, 3);
@@ -55,17 +57,19 @@ public class RentalInfoTest {
         when(pricingStrategy.calculateCharge(3)).thenReturn(3.50);
         when(pricingStrategy.calculateFrequentRenterPoints(3)).thenReturn(1);
 
+        // Act: generate rental statement
         String result = rentalInfo.statement(request);
 
-        // Assert
+        // Assert: verify statement contains expected values
         assertTrue(result.contains("C. U. Stomer"));
         assertTrue(result.contains("You've Got Mail"));
         assertTrue(result.contains("3.50"));
         assertTrue(result.contains("1"));
     }
+
     @Test
     void testStatement_movieNotFound_throwsException() {
-        //Setup Customer request
+        // Arrange: setup request for non-existent movie
         String movieId = "F0015";
         String customerName = "Alice";
         MovieRentalRequest rentalRequest = new MovieRentalRequest(movieId, 2);
@@ -73,7 +77,7 @@ public class RentalInfoTest {
 
         when(movieRepository.findById(movieId)).thenReturn(Optional.empty());
 
-        // Assert
+        // Act & Assert: verify exception is thrown for missing movie
         MovieNotFoundException ex = assertThrows(MovieNotFoundException.class,
                 () -> rentalInfo.statement(request));
         assertEquals("Movie not found: " + movieId, ex.getMessage());

@@ -19,19 +19,26 @@ public class PricingStrategyFactoryTest {
     private PricingStrategy newStrategy;
     @BeforeEach
     void setUp() {
+        // Mock a strategy for REGULAR movies
         regularStrategy = mock(PricingStrategy.class);
         when(regularStrategy.getApplicableCategory()).thenReturn(MovieType.REGULAR);
 
+        // Mock a strategy for NEW movies
         newStrategy = mock(PricingStrategy.class);
         when(newStrategy.getApplicableCategory()).thenReturn(MovieType.NEW);
 
+        // Initialize factory with mocked strategies
         factory = new PricingStrategyFactory(List.of(regularStrategy, newStrategy));
     }
+
+    // Verify factory returns the correct strategy based on movie type
     @Test
     void testGetStrategy_returnsCorrectStrategy() {
         assertEquals(regularStrategy, factory.getStrategy(MovieType.REGULAR));
         assertEquals(newStrategy, factory.getStrategy(MovieType.NEW));
     }
+
+    // If strategy for a given movie type is not registered, return null
     @Test
     void testGetStrategy_returnsNullForUnknownType() {
         assertNull(factory.getStrategy(MovieType.CHILDRENS));
