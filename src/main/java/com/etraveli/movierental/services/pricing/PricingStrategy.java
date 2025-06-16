@@ -1,6 +1,7 @@
 package com.etraveli.movierental.services.pricing;
 
 import com.etraveli.movierental.services.enums.MovieType;
+import static com.etraveli.movierental.services.util.Constants.*;
 
 public interface PricingStrategy {
     MovieType getApplicableCategory();
@@ -8,6 +9,6 @@ public interface PricingStrategy {
     double calculateCharge(int daysRented);
 
     default int calculateFrequentRenterPoints(int daysRented) {
-        return 1;
+        return BASE_FREQUENT_POINTS;
     }
 }
