@@ -1,11 +1,9 @@
 package com.etraveli.movierental.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class MovieRental {
+public class MovieRentalRequest {
     private String movieId;
     private int days;
 }
