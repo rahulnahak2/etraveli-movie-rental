@@ -30,5 +30,8 @@ java -cp src java.com.etraveli.movierental.com.etraveli.movierental.MovieRentalA
 7. Implemented factory and strategy design pattern with the help of solid principles to calculate the rental and bonus points.
 8. Added Data JPA repositories and H2(in-memory) database to store movie, customer and rental details instead of hardcoding the data.
 9. Handled custom exception and validated the user input
+10. Implemented unit testing using junit and mockito to maintain and improve quality of code.
 ## To-Do :
-1. Add test cases to optimize the quality of code and helps designing the application for future enhancements.
+1. More test cases can be added to achieve all corner cases.
+2. Movie catalog class need to remove once full-featured db configured in the application. For testing purpose I have used (H2)in-memory DB.
+3. Configuration of Spring security to secure the accessibility of data.
